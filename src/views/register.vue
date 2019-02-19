@@ -1,258 +1,362 @@
 <template>
-    <div  class="register">
-      <mt-header fixed  title="用户注册">
-  </mt-header>
-        <div class="register-wrap">
-            <form action="" method="" >
-           <p>手机号码: 
-               <input type="tel"  v-model="user.username" placeholder="请输入手机号" >    
-           </p>
-           <p>设置密码:
-               <input type="password" v-model="user.password" placeholder="6到20位字符" > 
-             </p>
-           <p class="title">再次输入密码: <input type="password"  v-model="user.getpassword" placeholder="再次输入密码" >
-           </p>
-           <!-- <div class="register-content">
-            <p>验证码 <input type="text"   placeholder="请输入验证码"  v-model="user.code" >
-           <mt-button  type="danger" :disabled="disabled" @click="codebtn"  >{{btntxt}}</mt-button>
-           </p> 
-           </div> -->
-           <div class="register-contain">
-           <router-link to="/help">
-            <a href="/help">查看协议>></a>
-            </router-link>
-             <mt-button size="large" type="primary" @click="stt">同意协议并注册</mt-button>
-           </div>
-            </form>
-        </div>
-    </div>
+<!-- <meta http-equiv="Access-Control-Allow-Origin" content="*"> -->
+  <div class="register" :style="note">
+    <img class='login-icon' src="../assets/hb.png" alt="">
+   <!-- <form action="" method="post"> -->
+     <div class="form">
+     <div class="phone-number-box">
+       <img class='phone-icon' src="../assets/icon_phone.png" alt="">
+       <input type="text" v-model.trim="user_name" name="txtUserName" placeholder="请输入手机号码">
+       <img @click="clear" class='close-icon' src="../assets/icon_input_button_delete.png" alt="">
+     </div>
+     <div class="code-box">
+       <img class='code-icon' src="../assets/input_icon_identifying codeb.png" alt="">
+       <input v-model.trim="user_code" name="txtPassword" class='code' type="text" placeholder="请输入验证码">
+        <span v-show="sendAuthCode" class="getcode" @click="getAuthCode">获取验证码</span>
+      <span v-show="!sendAuthCode" class="auth_text"> <span class="auth_text_blue">还剩</span>{{auth_time}}秒 </span> </span> 
+     </div>
+     <input class='login' @click='login' type="button" value='登陆/注册'>
+     </div>
+   <!-- </form> -->
+  </div>
 </template>
 <script>
-import axios from 'axios' 
+import axios from 'axios'
+import eventBus from '../until/eventbus.js'
+import '../until/rem.js'
 export default {
-  name:'register',
-  data(){
-      return{
-        //   btntxt:"获取短信验证码",
-        //   disabled:false,
-        //   time:0  ,
-        user:{
-            username:'',
-            password:'',
-            //  userId:'',
-             getpassword:'',
-            //  code:'',
-           
-        }
-      }
-  },
-  methods:{
-      //验证手机号部分
-    //   checkphone:function(){
-    //      var username=this.username.val()//获取输入的手机号
-    //          var pattern = /^1[0-9]{10}$/;/*是否为11位*/
-
-    //     var myreg = /^(((13[0-9]{1})|(15[0-9]{1})|(18[0-9]{1}))+\d{8})$/; /*手机号段设置*/
-
-    //     isPhone = 1;
-    //     //未输入内容时，给出提醒
-    //     if(phone == '') {
-    //         //alert('请输入手机号码');
-    //         $('#check_1').show();
-    //         isPhone = 0;
-    //         return;
-    //     }
-    //      else{
-    //      $('#check_1').hide();
-
-    //      }
-    //     //不满足11位条件时，给出提醒
-    //     if(!pattern.test(phone)){
-    //         //alert('请输入正确的手机号码');
-    //         $('#check_2').show();
-    //         isPhone = 0;
-    //         return;
-    //     }
-    //      else{
-    //      $('#check_2').hide();
-    //      }
-    //     //手机号段判断，不符的话，提醒重新输入手机号
-    //     if(!myreg.test($("#tel").val())){
-    //         //alert('请输入有效的手机号！');
-    //         $('#check_3').show();
-    //         isPhone = 0;
-    //         return;
-    //     }
-    //      else{
-    //      $('#check_3').hide();
-    //      }
-    //   },
-
-//       codebtn:function(){
-//           var reg=11&&/^((13|14|15|17|18)[0-9]{1}\d{8})$/
-//         //   var url="/nptofficiaWebsite/apply/sennnndSms?mobile="+this.ruleForm.phone;
-//           if(this.ruleForm.username==''){
-//               alert("请输入手机号码");
-//           }else if(!reg.test(this.phone)){
-//               alert("手机格式不正确")
-//           }else{
-//                this.time=60;
-//                this.disabled=true;
-//               this.timer();
-//         //   axios.post(url).then(
-//         //       res=>{
-//         //           this.phonedata=res.data;
-//         //       })
-//           }  
-//       },
-//       timer:function(){
-//           if(this.time > 0){
-//               this.time--;
-//               console.log(this.time);
-//               this.btntxt=this.time+"s,后重新获取验证码";
-//               setTimeout(this.timer,1000);
-//           }else{
-//               this.time=0;
-//               this.btntxt="获取验证码";
-//               this.disabled=false
-//           }
-//       },
-//      checkpwd:function(){
-//                 var word=this.password.trim();
-//                 if(word.length==0)
-//                     this.msgpassword="密码不能为空";
-//                 var count=0;
-//                 if(/[0-9]/.test(word)){
-//                     count++;
-//                 }
-//                 if(/[A-Za-z]/.test(word))
-//                 {
-//                     count++;
-//                 }
-//                 if(/[^0-9A-Za-z]/.test(word)){
-//                     count++;
-//                 }
-//                 if(count==3&& word.length>=6)
-//                 {
-//                     this.msgpassword="高强度";
-//                 }else if(count==2&& word.length>=6){
-//                     this.msgpassword="中强度";
-//                 }else{
-//                     this.msgpassword="低强度";
-//                 }
-//                 return word >=0;
-//             },
-//             // codebtn:function () {
-//             //     console.log(1);
-//             //     this.disab=true;
-//             //     setTimeout(this.enableCodeBtn,1000);
-//             // },
-//             // enableCodeBtn:function () {
-//             //     if(this.c > 0) {
-//             //         this.btn=this.c+"秒后重新获取";
-//             //         setTimeout(this.enableCodeBtn, 1000); // 1 秒后再次调用自己
-//             //         this.c--;
-//             //     } else {
-//             //         this.disab=false;
-//             //         this.btn="获取短信验证码";
-//             //         this.c = 60;
-//             //     }
-//             // },
-//        stt(){
-//           axios.post("http://192.168.1.116:8081/api/user/register",).then(res=>{
-//               if(res.ret){
-//                 this.$router.push({path:'newsitem'})
-//               }
-
-//           })
-//       },
-                // var username=user.username;
-                // var password=user.password
-      stt(){
-          const user = [{username:this.user.username,password:this.user.password}]
-         axios.post("http://192.168.1.116:8081/api/user/register",{
-                user,
-            //  userId:'136'
-            
-            //  userId:this.user.userId
-        }).then(res=>{
-              if(res.ret){
-                  this.$router.push({path:'go(-1)'})  
-              }
-          })
-      }
-    },
-    mounted(){
-          this.stt();
-}
-}     
-     
+  name: "login",
+  data: function() {
+    return {
+      user_name: "",
+      user_code: "",  //绑定输入验证码框框
+      userId:'',
+      logining:false,
+      sendAuthCode:true,/*布尔值，通过v-show控制显示‘获取按钮'还是‘倒计时' */
+      auth_time: 0, /*倒计时 计数器*/
+      isRegist:'',
+      balance:'',
+      jumpData:'',
+      token:'',
+      note: {
+          backgroundImage: "url(" + require("../assets/siignin_bg.png") + ")",
+          backgroundRepeat: "no-repeat",
+          backgroundSize: "cover",    
+          position:" fixed"
+        },
+      path:''
    
+    };
+  },
+//  created(){
+//   this.path=this.$route.params.returnUrl;
+//   console.log(this.path);
+// },
+  methods: {
+    clear(){
+      this.user_name=""
+    },
+       strQuery(str){
+      var url=window.location.search();
+       var n = (str.split('?')).length - 1;
+        console.log(n);
+        if(n===1){
+           var urlArr=str.split("?")
+           var queryArr= urlArr[1].split('&')
+           var  paramsArr =queryArr[0].split('=')
+           var  id=paramsArr[1]
+           var userId=paramsArr[2]
+        }else if(n==2||n==3){
+           var num = str.indexOf("?")
+          str = str.substr(num + 1); //取得所有参数   stringvar.substr(start [, length ]
+          var arr = str.split("&"); //各个参数放到数组里
+          var urlArr= arr[1].split("?");
+          var queryArr= urlArr[1].split('&')
+           var  paramsArr =queryArr[0].split('=')
+           var  id=paramsArr[1]
+           var userId=paramsArr[2]
+        }
+     },
+    getAuthCode() {
+        var params = new URLSearchParams()      
+        var phone = this.user_name
+        params.append('phone', phone)
+         var reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+         var username = this.user_name
+         if (reg.test(this.user_name)) {
+        this.$axios.post('sendSmsCode', params).then(response => {
+          console.log(response);
+          if (response.res === 1) {
+            this.$message({
+              message: response.msg,
+              type: "success"
+            });
+          } else {
+            this.$message.error(response.msg);
+          }
+        })      
+         this.sendAuthCode = false;      //设置倒计时秒
+              
+        this.auth_time = 60;      
+        var auth_timetimer = setInterval(() => {        
+          this.auth_time--;        
+          if (this.auth_time <= 0) {          
+            this.sendAuthCode = true;          
+            clearInterval(auth_timetimer);        
+          }      
+        }, 1000); 
+         }else{
+           this.$message({
+            message: '请输入正确的手机号码',
+            type: 'warning',
+             });
+         }   
+      },
+    login() {
+        // 判断用户是否输入内容
+        var reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
+            var code = this.user_code
+        if (this.user_name == "" || this.user_code == "") {
+          this.$message({
+            message: '警告哦，请输入手机号码与验证码',
+            type: 'warning',
+            // center:'true'
+          });
+        } else {
+          if (reg.test(this.user_name)||(this.user_code==response.res.code)) {
+            var params = new URLSearchParams()
+            var username = this.user_name
+            var code = this.user_code
+            var userId = this.$route.query.userId
+            params.append('username', username)
+            params.append('code', code)
+            if(userId==''||userId==undefined){
+            }else{
+              params.append('userId', userId)
+            }
+            this.$axios.post('codeLogin', params).then(response => {
+              console.log(response);
+               if(response.res===0){
+                this.$message({
+                  message:response.msg,
+                   type: 'warning'
+                })
+                // return;
+              }else if (response.res === 1) {
+                 this.token = response.data.token;
+                this.$message({
+                  message: response.msg,
+                  type: "success"
+                });
+                this.balance = response.data.balance+0.00;
+                this.$store.commit("updatemoneyData", this.balance);
+                this.$store.commit('updatetoken', this.token)
+                if (response.data.isRegist === 1) {
+                  setTimeout(() => {
+                    this.$router.push({
+                      path: '/newcomerprize',
+                      query: {
+                        userId: this.$route.query.userId,
+                        // returnUrl: this.path
+                      }
+                    })
+                  }, 1000)
+                } else {
+                  this.$message({
+                    message: '您已经注册过，无法获得新人红包',
+                    type: 'warning'
+                  });
+                  setTimeout(() => {
+                    this.path=this.$store.state.path;
+                      
+                    console.log(this.path);
+                    if(this.path){
+                      // var urlArr = (this.path).split("?")
+                      // var queryArr = urlArr[1].split('&')
+                      // var paramsArr = queryArr[0].split('=')
+                      // var userId = paramsArr[1]
+                      // var id = paramsArr[2]
+                      this.$router.go(-1)
+                      // window.location.href=this.$router.go({name: 'group', params: {userId:paramsArr[1],id:paramsArr[2]}});
+                    }
+                    else{
+                         window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd"
+                    }
+                  }, 1500)
+                }
+                    // this.$store.commit('changelogin',true);
+               //从哪里过来回到哪里去
+          //      if(res)
+          //            setTimeout(()=>{
+          //              this.$router.go(-1);
+          // //  window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd"
+          //   },1500)
+               }else{
+                  this.$message.error(response.msg);
+               }
+          })
+      }else{
+        this.$message({
+          message:'手机号码或者验证码有误',
+          tye:'error',
+          center:'true'
+        })
+      }}
+  },
+    mounted(){
+          this.login();
+          this.getAuthCode();
+          this.clear();
+}
+ }
+      }
 
 </script>
-<style>
- .mint-header{
-  height:45px;
-  width:100%;
-  background:#16beac
+<style lang="less">
+body{
+  margin:0;
+  padding:0;
 }
-.mint-header-title{
+  .register{ 
+     width: 100%;
+     height: 100%;
+  }
   
-  font-size:24px;
-  color:#f1f1f1;
+
+.login-icon{
+  display: block;
+  margin:1rem auto 0;
+   height:5rem;
+   width: 100%;
+
 }
-</style>
-<style scoped>
- .register-wrap{
-     position:absolute;
-     width:400px;
-     height:500px;
-     text-align:center;
-     top:50%;
-     left:50%;
-     margin-top:-200px;
-     margin-left:-150px
- }
- .register-wrap p input{
-     width:300px;
-     height:30px;
-     background:#fff;
-     margin-left:10px;
-     font-size:14px;
- }
- .title{
+.form{
+    zoom:1;
+    position: relative;
+    margin-top:20%;
+    top:-5%;
+    height: 9rem;
+}
+.form:after{
      display:block;
-     margin-left:-32px;
+     content:'';
+     clear:both;
+     height:0;
+     overflow:hidden
+}
+
+.phone-number-box{
+  position: relative;
+  box-sizing: border-box;
+  // height: 0.37rem;
+  width: 80%;
+  margin:0 auto;
+  margin-bottom: 0.36rem;
+  // margin-bottom: 0.36rem;
+  height: 1.1rem;
+ 
+ .phone-icon{
+  position: absolute;
+  width: 0.4rem;
+  height: 0.5rem;
+  display: inline-block;
+  left:0.27rem;
+  // top:0.3rem;
+  transform: translateY(0.3rem);
  }
- .register-content p input{
-     height:30px;
-     width:153px;
-     background:#fff
+ input{
+   box-sizing: border-box;
+   position: absolute;
+  //  width: 28rem;
+   width: 100%;
+   height: 1.1rem;
+   padding-left:0.8rem;
+   font-size: 0.36rem;
+   background-color: transparent;
+   color:white;
+   border:0.01rem solid white;
  }
- .register-content p{
-     display:block;
-     margin-left:20px
+ .close-icon{
+   width: 0.48rem;
+   height: 0.48rem;
+   position: absolute;
+   display: inline-block;
+   right: 0.18rem;
+  //  top:0.3rem;
+   transform: translateY(0.3rem);
  }
- .mint-button--danger{
-    background-color:#d1d1d1;
-    height:36px; 
-    margin-left:-4px;
+}
+ .code-box{
+   display: flex;
+   position: relative;
+   border:0.01rem solid rgba(238,238,238,1);
+  //  width: 0.28rem;
+   width: 80%;
+   margin: 0 auto;
+   height: 1.1rem;
+   .code-icon{
+     width: 0.4rem;
+     height: 0.5rem;
+     display: inline-block;
+     position: absolute;
+     left:0.27rem;
+     top:0.3rem;
+   }
+   .code{
+     background-color: transparent;
+     box-sizing: border-box;
+     padding-left:0.8rem;
+     font-size: 0.36rem;
+     height: 1.1rem;
+     flex:1;
+     color:white;
+     border:none;
+   }
+   .getcode{
+     width: 30%;
+    //  height: 1.1rem;
+     background-color: transparent;
+     font-size: 0.36rem;
+     color:white;
+     text-align: center;
+     padding:0.02rem 0;
+     box-sizing: border-box;
+     display: inline-block;
+     line-height: 1.1rem;
+     border-left:0.01rem solid rgba(238,238,238,1);
+   }
+   .auth_text{
+     box-sizing: border-box;
+     display: inline-block;
+    //  height: 1.1rem;
+    //  padding:0.02rem 0;
+     width: 30%;
+     padding:0 0.07rem;
+     background-color: transparent;
+     font-size: 0.36rem;
+     color:white;
+     border-left:0.01rem solid rgba(238,238,238,1);
+     text-align: center;
+     line-height: 1.1rem;
+   
+   }
  }
- .register-contain a{
-     display:block;
-     text-decoration:none;
-     color:#a1a1a1;
-     margin-left:-70px;
-     margin-bottom:10px;
-     margin-top:-5px
+ .login{
+   display: block;
+   box-sizing: border-box;
+   width: 80%;
+   height: 1.1rem;
+   font-size: 0.54rem;
+   color:white;
+   background-color: transparent;
+   margin:1.59rem auto;
+   border:0.01rem solid white;
  }
- .register-contain a:hover{
-     color:#f00
- }
- .mint-button--primary{
-  background-color:#16beac;
-  margin-left:85px;
-  height:45px;
-  width:304px
- }
+  input::-webkit-input-placeholder {
+        color: white;
+        font-size: 0.36rem;
+          }
+.el-message__content{
+  font-size: 0.16rem;
+}
 </style>

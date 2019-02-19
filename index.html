@@ -1,72 +1,115 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <!-- <meta charset="utf-8">
-    <meta name="viewport" content="width=width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
-    <title>hqcdd</title> -->
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
-        <meta name="apple-mobile-web-app-capable" content="yes">
-        <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
-        <title>打开我的app</title>
-        <meta id="viewport" name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,minimal-ui">
-  </head>
-  <body>
-      <div id="app">
-        <a id="J-call-app" href="javascript:;" class="label">立即打开>></a>
-        <input id="J-download-app" type="hidden" name="storeurl" value="http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd">
-      </div>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="pragma"  content="no-cache">
     
-  </body>
+        <meta http-equiv="cache-control"  content="no-cache">
+        
+            <meta http-equiv="expires"  content="0">
+                <meta name="viewport" content="width=width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+                <meta http-equiv="Access-Control-Allow-Origin" content="*">
+                <title>电子通</title>
+
+</head>
+
+<body>
+    <div id="app">
+    </div>
+
+</body>
+
 </html>
 
 <script>
-  // function isInstalled(){
-  //   var the_href=$(".down_app").attr("href")
+    // new Vue({
+    //         el: "#app",
+    //         data: {
+    //             health: 100,
+    //             ended: false
+    //         },
+    // methods: {
+    //     register: function() {
+    //         document.querySelector("body").setAttribute("style", "background: url('../assets/siignin_bg.png')no-repeat cover")
 
-  //   window.location="app custom url schemes"
-  //   setTimeout(function(){
-  //     window.location=the_href
-  //   },500)
-  // }
-  (function(){
-                var ua = navigator.userAgent.toLowerCase();
-                var t;
-                var config = {
-                    /*scheme:必须*/
-                    scheme_IOS: 'cundong://',
-                    scheme_Adr: 'cundong://splash',
-                    download_url: document.getElementById('J-download-app').value,
-                    timeout: 600
-                };
+    //     }
+    // },
+    // newcomerprize: function() {
+    //     document.querySelector("body").setAttribute("style", " background:url('../assets/prizebg.png')no-repeat cover")
+    // }
+    // })
+    //     if(navigator.userAgent.match(/(iPhone|iPod|iPad);?/i)) {
+    //         //判断 useragent,当前设备为ios设备
+    //     var loadDateTime = new Date();//设置时间阈值，在规定时间里没有打开对应APP的话，直接去App store进行下载
+    //     window.setTimeout(function() {
+    //     var timeOutDateTime = new Date();
+    //     if(timeOutDateTime - loadDateTime < 5000) {
+    //     // window.location = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd";//要跳转的页面URL
+    //     } else {
+    //     window.close();
+    //     }
+    // },
+    // 25);
+    // window.location.href= " dzt://dzt.com?contentId=123&type=1";//ios端 URL Schema，app custom url schema
+    // console.log(window.location.href)
+    // } else if(navigator.userAgent.match(/android/i)) {
+    //    //判断 useragent,当前设备为android设备
+    // var state = null;
+    // try {
+    // state = window.open("dzt://dzt.com?contentId=123&type=1 ", '_blank'); //Android端URL Schema,app custom url schema
+    // } catch(e) {}
+    // if(state) {
+    // window.close();
+    // } else {
+    //  //window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd";
+    // }
+    // }
 
-                function openclient() {
-                    var startTime = Date.now();
+    //    if(navigator.userAgent.match(/android/i)){
+    //        //通过iframe的方式试图打开APP，如果能正常打开，会直接切换到APP，并且自动组织a标签的默认行为
+    //        //负责打开a标签的href链接
+    //        var isInstalled;
+    //        // 下面是安卓端APP接口调用的地址，视情况修改
+    //        var ifrSrc='dzt://dzt.com'
+    //        var ifr=document.createElement('iframe')
+    //        ifr.src=ifSrc;
+    //        ifr.style.display='none';
+    //        ifr.onload=function(){
+    //            isInstalled=true;
+    //            alert(isInstalled);
+    //            document.getElementById('openApp0').click()
+    //        }
+    //        ifr.onerror=function(){
+    //            //alert('May be not installed')
+    //            isInstalled=false;
+    //            alert(isInstalled)
+    //        }
+    //        document.body.appendChild(ifr);
+    //        setTimeout(function(){
+    //            document.body.removeChild(ifr)
+    //        },1000)
+    //    }
 
-                    var ifr = document.createElement('iframe');
-
-
-                    ifr.src = ua.indexOf('os') > 0 ? config.scheme_IOS : config.scheme_Adr;
-                    ifr.style.display = 'none';
-                    document.body.appendChild(ifr);
-
-                    var t = setTimeout(function() {
-                        var endTime = Date.now();
-
-                        if (!startTime || endTime - startTime < config.timeout + 200) { 
-                            window.location = config.download_url;
-                        } else {
-                            
-                        }
-                    }, config.timeout);
-
-                    window.onblur = function() {
-                        clearTimeout(t);
-                    }
-                }
-                window.addEventListener("DOMContentLoaded", function(){
-                    document.getElementById("J-call-app").addEventListener('click',openclient,false);
-
-                }, false);
-            })()
+    //    //ios判断
+    //    if (navigator.userAgent.match(/(iphone|ipod|ipas);?/i)){
+    //        var isInstalled
+    //        //下面ios调用的地址
+    //        var ifrSrc='dzt://dzt.com'
+    //        ifr.src=ifrSrc
+    //        ifr.style.display='none';
+    //        ifr.onload=function(){
+    //            isInstalled=true;
+    //            alert(isInstalled)
+    //            document.getElementById('openApp1').click()
+    //        }
+    //        ifr.onerror=function(){
+    //            isInstalled=false;
+    //            alert(isInstalled)
+    //        }
+    //        document.body.appendChild(ifr)
+    //        setTimeout(function(){
+    //            document.body.removeChild(ifr)
+    //        },1000)
+    //    }
 </script>

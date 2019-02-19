@@ -148,9 +148,12 @@
 </script>
 <style scoped>
     .content p{
-        font-size:16px;
-       font-weight:300;
-       text-align:justify;
-       text-indent:30px;
-    }
+     font-size:0.34rem;
+     font-weight:300;
+     text-align:justify;
+     text-indent:0.5rem;
+     /* line-height:0.38rem; */
+     padding:0.2rem auto;
+}
+ 
 </style>

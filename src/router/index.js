@@ -1,87 +1,138 @@
 import Vue from 'vue'
-import Router from 'vue-router'
+import VueRouter from 'vue-router'
 import newsitem from '@/views/newsitem'
+import Vuex from 'vuex' //引入状态管理
 
-Vue.use(Router)
+Vue.use(VueRouter)
 
-export default new Router({
-  routes: [
-    {
-      path: '/',
-      name: 'newsitem',
-      component: newsitem
-    },
-    {
-      path:'/newsitem',
-      name:'newsitem',
-      component:()=>import('@/views/newsitem')
+// export default new Router({
+// mode:'history',
+// base:'/dist/',
+let routes = [{
+            path: '/',
+            name: 'newsitem',
+            component: newsitem
+        },
+        {
+            path: '/newsitem',
+            name: 'newsitem',
+            component: () =>
+                import ('@/views/newsitem')
 
-    },
-    {
-      path:'/purchase',
-      name:'purchase',
-      component:()=>import('@/views/purchase')
+        },
+        {
+            path: '/purchase',
+            name: 'purchase',
+            component: () =>
+                import ('@/views/purchase')
 
-    },
-    {
-      path:'/topic',
-      name:'topic',
-      component:()=>import('@/views/topic')
+        },
+        {
+            path: '/topic',
+            name: 'topic',
+            component: () =>
+                import ('@/views/topic')
 
-    },
-    {
-      path:'/company',
-      name:'company',
-      component:()=>import('@/views/company')
+        },
+        {
+            path: '/comitem',
+            name: 'comitem',
+            component: () =>
+                import ('@/views/comitem')
 
-    },
-    {
-      path:'/comitem',
-      name:'comitem',
-      component:()=>import('@/views/comitem')
+        },
+        {
+            path: '/product',
+            name: 'product',
+            component: () =>
+                import ('@/views/product')
 
-    },
-    {
-      path:'/news',
-      name:'news',
-      component:()=>import('@/views/news')
+        },
+        {
+            path: '/exhibition',
+            name: 'exhibition',
+            component: () =>
+                import ('@/views/exhibition')
 
-    },
-    {
-      path:'/product',
-      name:'product',
-      component:()=>import('@/views/product')
+        },
+        {
+            path: '/login',
+            name: 'login',
+            component: () =>
+                import ('@/views/login')
 
-    },
-    {
-      path:'/exhibition',
-      name:'exhibition',
-      component:()=>import('@/views/exhibition')
+        },
+        {
+            path: '/register',
+            name: 'register',
+            component: () =>
+                import ('@/views/register'),
+            meta: {
+                name: 'register',
+            }
 
-    },
-    {
-      path:'/register',
-      name:'register',
-      component:()=>import('@/views/register')
+        },
+        {
+            path: '/help',
+            name: 'help',
+            component: () =>
+                import ('@/views/help')
 
-    },
-    {
-      path:'/login',
-      name:'login',
-      component:()=>import('@/views/login')
+        },
+        {
+            path: '/group',
+            name: 'group',
+            component: () =>
+                import ('@/views/group'),
+            meta: {
+                requireAuth: true, //添加该字段，表示进入这个路由是需要登录的
+                name:'group'
+            }
 
-    },
-    {
-      path:'/help',
-      name:'help',
-      component:()=>import('@/views/help')
+        },
+        {
+            path: '/pwd',
+            name: 'pwd',
+            component: () =>
+                import ('@/views/pwd')
 
-    },
-    {
-      path:'/group',
-      name:'group',
-      component:()=>import('@/views/group')
-
-    },
-  ]
-})
+        },
+        {
+            path: '/newcomerprize',
+            name: 'newcomerprize',
+            component: () =>
+                import ('@/views/newcomerprize'),
+            meta: {
+                requireAuth: true, //添加该字段，表示进入这个路由是需要登录的
+                nam: 'prize',
+            }
+        },
+        {
+            path: '/groupsuccess',
+            meta: { name: 'groupsuccess' },
+            component: () =>
+                import ('@/views/groupsuccess')
+        }
+    ]
+    // })
+    // 实例化路由对象
+let router = new VueRouter({
+        routes,
+        //去除#
+        // mode: 'history',
+    })
+    // router.beforeEach((to, from, next) => {
+    //     if (from.meta.name == 'group') {
+    //             let path = this.$store.state.paththis.$store.state.path
+    //             console.log(path);
+    //             this.$store.commit('updatapath', path);
+    //             next();
+    //         // if (to.meta.name == "register") {
+    //         //     let path = this.$store.state.path
+            
+    //         //     next();
+            
+    //         // }
+    //             }
+    //         })
+export default router

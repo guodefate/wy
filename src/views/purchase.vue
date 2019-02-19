@@ -1,19 +1,22 @@
 <template>
 <div class="purchase" >
   <div class="wrap">
-      <h2 v-text="item.title"></h2>
+      <h1 v-text="item.title"></h1>
       <h4> {{item.nickName}}</h4>
       <h4> {{item.createTime}}</h4>
-      <div class="contain-img"><img :src=" 'http://192.168.1.123:8081/hqcd/download'+ item.headUrl" alt=""></div>
-      <div class="content-wrap" v-for="title in comments" :key="title._id">
-      <div   class="content-wrap-content" >
-        {{title.content}}
+      <div class="contain-img"><img :src=" 'http://192.168.0.115:8081/hqcd/download'+ item.headUrl" alt=""></div>
+     <div class="content-wrap-box">
+         <div class="content-wrap" v-for="title in contents" :key="title._id" >
+      <div v-if="title.dType===1"  class="content-wrap-content" v-html='title.content.replace(/\n/g,"</br>")'>
+       </div>
+       <img  v-else-if="title.dType===2" :src=" 'http://192.168.0.115:8081/hqcd/download'+ title.content"     alt="">
     </div>
-    <img  :src="'http://192.168.1.123:8081/hqcd/download'+title.imageUrl" alt="">
-   </div>  
+     </div>
+     <div class="div"></div>
      <div class="footer" >
-       <mt-button size="small" type="primary" @click="getReg">立即注册</mt-button>
-       <mt-button size="small" type="primary" @click="getApp(e)">下载App</mt-button>
+       <!-- <mt-button size="small" type="danger" @click="getAPP" id="openApp">打开app</mt-button> -->
+       <mt-button size="small" type="danger" @click="getReg">立即查看</mt-button>
+       <!-- <mt-button size="small" type="primary" @click="getApp(e)">下载App</mt-button> -->
    </div> 
       </div> 
   </div>
@@ -25,11 +28,8 @@ export default {
   data(){
       return{
           item:{ },
-          comments:[
-            // {id: 2177, contentId: 137, dType: 2, content: "/purchase/1542273739.438220.jpg"},
-            // {id: 2178, contentId: 137, dType: 1, content: "防晒霜,环球磁电环球磁电环球磁电环球磁电环球磁电环球磁电环球磁电环球磁电"},
-            // {id: 2179, contentId: 137, dType: 2, content: "/purchase/1542273696.355387.jpg"}
-          ]
+          contents:[],
+          title:{}
  
       }
   },
@@ -44,28 +44,77 @@ export default {
         var userId=paramsArr[2]
      },
       getData(){
-          axios.get("http://192.168.1.116:8081/api/purchase/newDetail?",{params:{
+         this. $axios.get("getPurchase",{
            id:this.$route.query.id,
            userId:this.$route.query.userId,
             // id:137,
             pageNum:1,
-            pageSize:10000}}).then(res => {
-               console.log(res);
-               console.log(res.data)
-               console.log(res.data.data)
-               this.item =res.data.data.purchase;
- 
-               this.title=res.data.data.comments[0]
-               this.comments=res.data.data.comments
+            pageSize:10000}).then(res => {
+               //console.log(res);
+               this.item =res.data.purchase;
+               this.title=res.data.purchase.contents[0]
+               this.contents=res.data.purchase.contents
                
              })
       },
        getReg(){
-        this.$router.push({path:'/register'})
+               this.$router.push({path:'/register',query:{userId:this.$route.query.userId}})
       },
-       getApp(e){
-           window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd"
-      }
+      //  getApp(e){
+      //      window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd"
+      // }
+        getAPP(){
+        if(navigator.userAgent.match(/android/i)){
+       //通过iframe的方式试图打开APP，如果能正常打开，会直接切换到APP，并且自动组织a标签的默认行为
+       //负责打开a标签的href链接
+       var isInstalled;
+       // 下面是安卓端APP接口调用的地址，视情况修改
+      var contId=this.$route.query.id
+        //console.log(contId)
+      var ifrSrc='dzt://dzt.com?type=2&contentId=' +contId
+       //console.log(ifrSrc)
+       var ifr=document.createElement('iframe')
+       ifr.src=ifrSrc;
+       ifr.style.display='none';
+       ifr.onload=function(){
+           isInstalled=true;
+           alert(isInstalled);
+           document.getElementById('openApp0').click()
+       }
+       ifr.onerror=function(){
+           //alert('May be not installed')
+           isInstalled=false;
+           alert(isInstalled)
+       }
+       document.body.appendChild(ifr);
+       setTimeout(function(){
+           document.body.removeChild(ifr)
+       },1000)
+   }
+
+   //ios判断
+   if (navigator.userAgent.match(/(iphone|ipod|ipas);?/i)){
+       var isInstalled
+       //下面ios调用的地址
+       var ifrSrc='dzt://dzt.com?type=2&contentId=${com.contentId}'
+       var ifr=document.createElement('iframe')
+       ifr.src=ifrSrc
+       ifr.style.display='none';
+       ifr.onload=function(){
+           isInstalled=true;
+           alert(isInstalled)
+           document.getElementById('openApp1').click()
+       }
+       ifr.onerror=function(){
+           isInstalled=false;
+           alert(isInstalled)
+       }
+       document.body.appendChild(ifr)
+       setTimeout(function(){
+           document.body.removeChild(ifr)
+       },1000)
+   }
+      } ,
       
       },
       mounted(){
@@ -74,73 +123,102 @@ export default {
 }
 </script>
 <style>
-.purchase{
-    padding:20px;
+  body{
+  margin: 0;
+  padding: 0;
 }
 </style>
 <style scoped>
 .wrap{
-    background:#fff;
-    position:absolute;
-     width:600px;
-     height:1400px;
-     text-align:center;
-     top:50%;
-     left:50%;
-     margin-top:-380px;
-     margin-left:-300px;
-  }
-  .wrap img{
-    display:block;
-    width:600px;
-    height:300px;
-    
-
-  }
-   .wrap h4{
-    font-size:15px;
-    font-weight:300;
-    color:#000;
-    line-height:1.2;
-    margin-top:2px;
-    margin-bottom:5px;
-    margin-left:50px;
-    text-align:left;
-  }
-    .contain-img img{
-    display:block;
-    width:35px;
-    height:35px;
-    border-radius:50%;
-    margin-left:5px; 
-    margin-top:-40px
-  }
-  .content-wrap{
-    margin-top:20px;
-    text-indent:20px;
-    line-height:22px;
-    text-align:justify
-  }
-  .content-wrap-content{
-    margin-left: 5px;
-  }
-   .mint-button--primary{
-    background-color:#f5f5f5;
-    color:#333;
-    width: 130px;
-    margin-left:10px ;
-    margin-top:10px; 
-    border:1px solid #999
-  }
-.footer{
-  display:flex;
-  position:fixed;
-  bottom:0;
-  width:605px;
-  height:45px;
-  justify-content:center;
-  background:#fff;
+     background:#fff;
+     width:100%;
 }
+ .wrap img{
+     display:block;
+     width:100%;
+}
+ .wrap h1{
+     /* text-align:center; */
+     font-size:0.54rem;
+     padding:0.4rem;
+}
+ .wrap h4{
+     font-size:0.36rem;
+     font-weight:300;
+     color:#000;
+     line-height:1.2;
+     margin-top:0.1rem;
+     margin-bottom:0.05rem;
+     margin-left:1.35rem;
+     text-align:left;
+     white-space: nowrap;
+     text-overflow: ellipsis;
+     overflow: hidden;
+     word-break: break-all;
+}
+ .contain-img img{
+     display:block;
+     width:1rem;
+     height:1rem;
+     border-radius:50%;
+     margin-left:0.2rem;
+     margin-top:-1rem 
+}
+.content-wrap-box{
+   border-top:0.02rem solid rgba(100,100,100,1);
+   margin-top:0.25rem;
+}
+   .div{
+        height: 2.2rem;
+        background-color: white;
+        width: 100%;
+    }
+ .content-wrap{
+     margin:0.24rem;
+    
+}
+ .content-wrap-content{
+     /* text-indent:0.4rem; */
+     text-align:justify;
+     margin-left: 0.2rem;
+     margin-right: 0.2rem;
+     font-size:0.36rem
+}
+ .mint-button--danger{
+     color:#fff;
+     width:100%;
+     height:0.8rem;
+     border:1px solid #999;
+     font-size:0.34rem 
+}
+ .footer {
+        display: flex;
+        z-index: 999;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        height: 1.44rem;
+        margin-top: 0.35rem;
+        left: 0;
+        line-height: 1.44rem;
+        justify-content: center;
+        background: #fff;}
+        .mint-button--danger {
+            height: 1.44rem;
+            font-size: 0.56rem;
+        }
+        .group-btn{
+            font-size: 0.56rem;
+        }
+         .mint-button{
+            font-size: 0.56rem;
+            border-radius:0rem;
+        }
+        .mint-button--small{
+            font-size: 0.56rem;
+        }
+ 
+ 
 </style>
 
 

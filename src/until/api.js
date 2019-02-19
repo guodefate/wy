@@ -4,10 +4,21 @@ export default{
 
     getProduct:'product/findById',
     getCompany:'company/otherInfo',
-    getOtherpany:'company/otherInfo', 
-    getNews:'news/detail',
-    getNewslist:'news/newsList',
-    getPurchase:'purchase/findById',
-    getTopic:'topic/findById'
+    getOtherpany:'company/otherInfo',
+    getNews:'news/newDetail',
+    getGroup:'collage/findById',
+    getexhibition:'exhibition/newDetail',
+    getPurchase:'purchase/newDetail',
+    getTopic:'topic/newDetail',
+    register:'user/webRegister',
+    login:'user/login',
+    codeLogin:'webUser/codeLogin',
+    getcode:'webUser/SendSmsNumForRegist',
+    sendSmsCode:'webUser/sendSmsCode',
+    addGroup:'collage/addAssemble',
+    getPwd:'user/forget',
+    myCollage:'collage/myCollage'
+
+    
     
 }
