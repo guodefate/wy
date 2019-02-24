@@ -15,7 +15,7 @@ export default{
     codeLogin:'webUser/codeLogin',
     getcode:'webUser/SendSmsNumForRegist',
     sendSmsCode:'webUser/sendSmsCode',
-    addGroup:'collage/addAssemble',
+    sendGroup:'collage/addAssemble',
     getPwd:'user/forget',
     myCollage:'collage/myCollage'
 

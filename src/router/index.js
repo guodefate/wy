@@ -45,8 +45,13 @@ let routes = [{
             path: '/product',
             name: 'product',
             component: () =>
-                import ('@/views/product')
-
+                import ('@/views/product'),
+        },
+        {
+            path: '/products',
+            name: 'products',
+            component: () =>
+                import ('@/views/products')
         },
         {
             path: '/exhibition',
@@ -113,6 +118,7 @@ let routes = [{
             component: () =>
                 import ('@/views/groupsuccess')
         }
+        
     ]
     // })
     // 实例化路由对象
@@ -120,7 +126,17 @@ let router = new VueRouter({
         routes,
         //去除#
         // mode: 'history',
+        scrollBehavior(to, from,savedPosition) {
+            return {
+              x: 0,
+              y: 0
+            }
+          }
     })
+    
+  
+
+
     // router.beforeEach((to, from, next) => {
     //     if (from.meta.name == 'group') {
     //             let path = this.$store.state.paththis.$store.state.path

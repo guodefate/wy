@@ -3,8 +3,9 @@
     <div class="wrap">
       <div class="slider">
         <mt-swipe :auto="3000" class="wrap-title">
-          <mt-swipe-item v-for="items in images" :key="items._id">
-            <img class='swipe-icon' :src="'http://192.168.0.115:8081/hqcd/download'+ items.imageUrl" alt="">
+          <!-- <mt-swipe-item v-for="items in images" :key="items._id"> -->
+            <mt-swipe-item v-for="(item, index) in images" :key="item._id">
+            <img class='swipe-icon' :src="'http://192.168.0.115:8081/hqcd/download'+ item.imageUrl" alt="">
           </mt-swipe-item>
         </mt-swipe>
       </div>
@@ -15,9 +16,16 @@
         <h4>{{item.suitableRange}}</h4>
       </div>
       <div class="title">
+        <router-link :to ="{path:'/comitem',query:{id:id,userId:userId}}" class='wrap-count'>
+        <!-- <div class="wrap-count"> -->
         <div class="contain-img"> <img class='user-icon' :src="'http://192.168.0.115:8081/hqcd/download'+ user.headUrl" alt=""></div>
-        <div class='username'>{{user.nickname}}</div>
-        <div class='usertime'>{{introduction}}</div>
+        <div class="user-right">
+           <div class='username'>{{user.nickname}}</div>
+          <div class='usertime'>更多详情>></div>
+        </div>
+          <!-- </div> -->
+        </router-link>
+        
       </div>
       <div class="wrap-box">
         <div class="wrap-techlogo">
@@ -32,11 +40,12 @@
       </div>
       <!-- 相关推荐 -->
       <div class="recommend-box">
-        <div class="recommend-title">
+        <div class="recommend-title" v-show="product">
           相关推荐
         </div>
         <div class="recommend-content-box">
             <div class="recommend-content" v-for="(item, index) in similarList" :key="item.id" >
+               <router-link :to ="{path:'/product',query:{id:item.id,userId:userId}}">
            <img class='recommend-icon' :src=" 'http://192.168.0.115:8081/hqcd/download'+ item.picture" alt="">
            <div class="recommend-content-tibox">
               <div class="recommend-content-title">
@@ -46,9 +55,11 @@
                 {{item.categoryName}}
               </div>
           </div> 
+          </router-link>
         </div>
         
          </div>
+         
       </div>
       <div class="div"></div>
       <div class="footer">
@@ -67,6 +78,7 @@
   } from 'mint-ui'
   export default {
     name: 'product',
+    // inject:['reload']
     data() {
       return {
         item: {},
@@ -74,7 +86,10 @@
         images: [],
         technicalParameter: [],
         introduction:'',
-        similarList:[]
+        similarList:[],
+        id:0,
+        userId:0,
+        product:false
 
       }
     },
@@ -94,13 +109,25 @@
         }).then(res => {
           console.log(res);
           //console.log(res.data)
-          this.item = res.data.product;
+          if(res.res==1){
+             this.item = res.data.product;
           this.technicalParameter = JSON.parse(res.data.product.technicalParameter)
-          this.items = res.data.product.images[0]
+          // this.items = res.data.product.images[0]
           this.images = res.data.product.images
           this.user = res.data.user;
           // this.introduction=res.data.company.introduction
           this.similarList=res.data.similarList
+        if(this.similarList!=0){
+           this.product=true
+        }
+          this.id=res.data.company.userId
+          }else{
+             this.$message({
+            message:res.msg,
+            type: 'warning',
+             });
+          }
+         
         })
       },
       getReg() {
@@ -108,9 +135,20 @@
           path: '/register',
           query: {
             userId: this.$route.query.userId
-          }
+          },
+          // jump(){
+          //   this.$route.go(0)
+          // }
         })
       },
+      jump(){
+      this.$router.push({
+                    path: '/products',
+                    // query: {
+                    //     userId: this.$route.query.id
+                    // }
+                })
+    },
       // getApp(e){
       //      window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd"
       // }
@@ -168,8 +206,25 @@
     },
     mounted() {
       this.getData();
+    },
+    
+    created(){
+      this.getData();
+      this.userId= this.$route.query.userId
+      },
+    watch: {
+    $route(newVal, oldVal) {
+        console.log('数据变了');
+      // 重新获取数据即可
+      //   this.created();
+      // 初始化数据
+      // this.strQuery(str);
+      this.getData();
+       location.replace(location) 
     }
   }
+  }
+  
 </script>
 <style>
   body {
@@ -179,6 +234,10 @@
   }
 </style>
 <style lang='less'>
+a{
+    text-decoration: none;
+    color:black;
+  }
   .wrap {
     background: rgba(246, 246, 246, 1);
     width: 100%;
@@ -205,8 +264,9 @@
     width: 100%;
     margin-top: -0.3rem;
     background: #fff;
-    padding-left: 0.25rem;
-    padding-bottom: 0.22rem;
+    padding: 0.25rem;
+    margin-right: 0.25rem;
+    // padding-bottom: 0.22rem;
   }
   .wrap .wrap-content-rbox h3 {
     font-size: 0.42;
@@ -227,7 +287,8 @@
     margin-top: 0.17rem;
     margin-bottom: 0.08rem;
     font-size: 0.34rem;
-    /* margin-left:0.2rem; */
+    margin-right: 0.35rem;
+    // /* margin-left:0.2rem; */
   }
   .contain-img>.user-icon {
     display: block;
@@ -235,6 +296,9 @@
     height: 1.8rem;
     border-radius: 50%;
     margin-left: 0.6rem;
+  }
+  .wrap-count{
+    display: flex;
   }
   .title {
     background: #fff;
@@ -244,18 +308,24 @@
     padding: 0.25rem 0;
   }
   .title .username {
-    margin-left: 2.6rem;
-    margin-top: -1.5rem;
-    margin-bottom: 0.37rem;
-    padding-right:0.15rem;
+    margin-left: 0.26rem;
+    margin-top: 0.15rem;
+    // margin-bottom: 0.37rem;
+    // padding-right:0.15rem;
+    display: block;
+  }
+  .user-right{
+    flex:1;
   }
   .title .usertime {
-    margin-left: 2.6rem;
-    padding-right:0.15rem;
+   margin-left: 0.26rem;
+    margin-top: 0.25rem;
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     word-break: break-all;
+    color: rgba(100,100,100,1);
+     display: block;
   }
   .mint-button--danger {
     color: #fff;
@@ -345,27 +415,21 @@
     }
     .recommend-content-box{
       float: left;
-      // display: flex;
-      // flex-wrap: wrap;
-      // justify-content: space-around;
       box-sizing: border-box;
       padding-left: 0.1rem;
       padding-right: 0.1rem;
-      // background-color: white;
-        // overflow: hidden;
     }
     .recommend-content{
       width: 46.5% !important;
       display: inline-block;
       box-sizing: border-box;
-      // border: 1px solid #fff;
       background-color: rgba(238,238,238,1);
       margin:0.15rem;
     }
     .recommend-icon{
       display: block;
       height: 5rem;
-      // padding-top:0.05rem;
+      width: 100%;
     }
     .recommend-content-tibox{
        width:100%;
@@ -387,6 +451,7 @@
   }
      .div{
         height: 2.2rem;
+        float: left;
         background-color: white;
         width: 100%;
     }

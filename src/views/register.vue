@@ -83,6 +83,7 @@ export default {
         params.append('phone', phone)
          var reg = /^(0|86|17951)?(13[0-9]|15[012356789]|166|17[3678]|18[0-9]|14[57])[0-9]{8}$/;
          var username = this.user_name
+         console.log(params);
          if (reg.test(this.user_name)) {
         this.$axios.post('sendSmsCode', params).then(response => {
           console.log(response);
@@ -134,6 +135,7 @@ export default {
             }else{
               params.append('userId', userId)
             }
+         console.log(params);
             this.$axios.post('codeLogin', params).then(response => {
               console.log(response);
                if(response.res===0){

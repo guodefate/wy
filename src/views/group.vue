@@ -41,8 +41,6 @@
                     <h4>{{item.key}}</h4>
                     <span>{{item.value}}</span>
                     </div>
-                   
-                    
                 </div>
                 <div class="wrap-foot">
                     <h3>产品描述</h3>
@@ -51,10 +49,11 @@
                 </div>
             </div>
             <div class="fight-group-box">
-                <div class="fight-group-title">
+                <div v-show="group" class="fight-group-title">
                     相关拼团
                 </div>
-                <div v-for="(item, index) in similarList" :key="item.id" class="fight-group-content" @click="jump">
+                <div v-for="(item, index) in similarList" :key="item.id">
+                    <router-link class="fight-group-content" :to ="{path:'/group',query:{id:item.id,userId:userId}}">
                     <img class='icon' :src="`http://192.168.0.115:8081/hqcd/download`+item.picture" alt="">
                     <div class="fight-group-right">
                         <div class="product-name">
@@ -70,14 +69,15 @@
                             </div>
                         </div>
                     </div>
+                    </router-link>
                 </div>
             </div>
             <div class="footer">
                 <!-- <mt-button size="small" type="primary" @click="getReg">立即注册</mt-button> -->
                 <!-- <mt-button size="small" type="primary" @click="getApp(e)">下载App</mt-button> -->
                 <!-- <mt-button size="small" type="danger" @click="getAPP" id="openApp">打开app</mt-button> -->
-                <mt-button class="group-btn" v-show="money" v-if='replace' size="small" type="danger" @click="getReg">{{valueBtn}}</mt-button>
-                <mt-button class="look-btn" v-if="!replace" size="small" type="danger" @click="getReg">查看更多拼团</mt-button>
+                <mt-button class="group-btn" v-show='money' size="small" type="danger" @click="getbullet">跟你拼了</mt-button>
+                <!-- <mt-button class="look-btn" v-if="!replace" size="small" type="danger" @click="getReg">查看更多拼团</mt-button> -->
                 <mt-button v-show="!money" size="small" type="danger" @click="getReg" >确定拼了</mt-button>
             </div>
             <!-- 弹框 -->
@@ -147,11 +147,15 @@
                 productId: '',
                 price: '',
                 token: '',
-                datas: {
-                    productModel: '',
-                    totalMoney: 0,
-                    number: 0
-                },
+                datas: 
+                [
+                   {
+                       id: '',
+                       number: '',
+                       totalMoney: '',
+                    }
+                ]
+               ,
                 similarList: [],
                 bullet: false,
                 valueBtn: '跟你拼了',
@@ -165,7 +169,9 @@
                 createTimes: '',
                 replace: true,
                 path:'',
-                num:0
+                num:0,
+                group:false,
+                userId:0
             }
         },
         //计算属性
@@ -176,7 +182,7 @@
                 this.collage.forEach(v => {
                         num +=v.price * v.num;
                     });
-                this.datas.totalMoney=num;
+                this.datas.totalMoney=num+0.000;
                 console.log(this.datas.totalMoney);
                   return num;
             },
@@ -190,9 +196,21 @@
               console.log(this.datas.number);
               return count;
             },
-            // 
-
-        },
+            // 选中商品的id
+            id(){
+                let ids = '';
+                this.collage.forEach(v=>{
+                    if(v.isSelected==true){
+                        ids+=v.id;
+                        ids+=','
+                    }
+                })
+                // 去掉最后的,
+                ids = ids.slice(0,ids.length-1);
+                // 返回ids
+                return ids;
+        }
+      },
         watch:{
             collage:{
                 handler:function(val,oldVal){
@@ -231,18 +249,30 @@
             this.$store.state.path=paths;
             console.log(this.path);
             console.log(paths);
+            this.userId= this.$route.query.userId
         },
+     watch: {
+    $route(newVal, oldVal) {
+        console.log('数据变了');
+      // 重新获取数据即可
+      //   this.created();
+      // 初始化数据
+      // this.strQuery(str);
+      this.getData();
+      location.replace(location) 
+    }
+  },
         mounted() {
             this.getData();
             this.countdown();
             this.getReg();
             //   this.getBulletData()   
-            this.getAPP();
+            // this.getAPP();
         },
         methods: {
             close() {
                 this.bullet = false;
-                this.valueBtn = '跟你拼了'
+                this.money=true;
             },
             // 带参跳转
              jump(){
@@ -294,6 +324,9 @@
                 ).then(res => {
                     console.log(res);
                     this.similarList = res.data.similarList;
+                    if(this.similarList!=0){
+                        this.group=true
+                    }
                     this.similarList.forEach(v => {
                         this.createTimes = v.createTimes
                         v.startTime = this.createTimes.substring(0, 10)
@@ -321,16 +354,15 @@
                     this.productId = res.data.collage[0].productId
                     console.log(this.productId)
                     console.log(this.num);
-                    // 增加计数器属性
-                    this.collage.forEach(v=>{
-                         this.datas.productModel+=v.productModel
+                   this.collage.forEach((v) => {
+                        this.datas[0].id=v.id
                     })
                 });
             },
             //   getBulletData(){
             //          eventBus.$on('token',function(data){
             //         //赋值给拼团的数据
-            //         this.token=data;
+            //         this.token=data; ;
             //         var token=this.token;
             //         console.log(token)
             //         console.log(data)
@@ -376,71 +408,73 @@
             download(){
                  window.location.href = "http://a.app.qq.com/o/simple.jsp?pkgname=com.hqcd" 
             },
-            getAPP() {
-                if (navigator.userAgent.match(/android/i)) {
-                    //通过iframe的方式试图打开APP，如果能正常打开，会直接切换到APP，并且自动组织a标签的默认行为
-                    //负责打开a标签的href链接
-                    var isInstalled;
-                    // 下面是安卓端APP接口调用的地址，视情况修改
-                    var contId = this.$route.query.id
-                    console.log(contId)
-                    var ifrSrc = 'dzt://dzt.com?type=7&contentId=' + contId
-                    //    window.location.href = 'dzt://dzt.com?type=4&contentId'+contId
-                    //     var ifrSrc='dzt://dzt.com? type=4&contentId=237'
-                    console.log(ifrSrc)
-                    var ifr = document.createElement('iframe')
-                    ifr.src = ifrSrc;
-                    ifr.style.display = 'none';
-                    ifr.onload = function() {
-                        isInstalled = true;
-                        alert(isInstalled);
-                        document.getElementById('openApp0').click()
-                    }
-                    ifr.onerror = function() {
-                        //alert('May be not installed')
-                        isInstalled = false;
-                        alert(isInstalled)
-                    }
-                    document.body.appendChild(ifr);
-                    setTimeout(function() {
-                        document.body.removeChild(ifr)
-                    }, 1000)
-                }
-                //ios判断
-                if (navigator.userAgent.match(/(iphone|ipod|ipas);?/i)) {
-                    var isInstalled
-                    //下面ios调用的地址
-                    var contId = this.$route.query.id
-                    console.log(contId)
-                    var ifrSrc = "dzt://type=4&contentId=" + contId
-                    var ifr = document.createElement('iframe')
-                    ifr.src = ifrSrc
-                    ifr.style.display = 'none';
-                    ifr.onload = function() {
-                        isInstalled = true;
-                        alert(isInstalled)
-                        document.getElementById('openApp1').click()
-                    }
-                    ifr.onerror = function() {
-                        isInstalled = false;
-                        alert(isInstalled)
-                    }
-                    document.body.appendChild(ifr)
-                    setTimeout(function() {
-                        document.body.removeChild(ifr)
-                    }, 1000)
-                }
-            },
+            // getAPP() {
+            //     if (navigator.userAgent.match(/android/i)) {
+            //         //通过iframe的方式试图打开APP，如果能正常打开，会直接切换到APP，并且自动组织a标签的默认行为
+            //         //负责打开a标签的href链接
+            //         var isInstalled;
+            //         // 下面是安卓端APP接口调用的地址，视情况修改
+            //         var contId = this.$route.query.id
+            //         console.log(contId)
+            //         var ifrSrc = 'dzt://dzt.com?type=7&contentId=' + contId
+            //         //    window.location.href = 'dzt://dzt.com?type=4&contentId'+contId
+            //         //     var ifrSrc='dzt://dzt.com? type=4&contentId=237'
+            //         console.log(ifrSrc)
+            //         var ifr = document.createElement('iframe')
+            //         ifr.src = ifrSrc;
+            //         ifr.style.display = 'none';
+            //         ifr.onload = function() {
+            //             isInstalled = true;
+            //             alert(isInstalled);
+            //             document.getElementById('openApp0').click()
+            //         }
+            //         ifr.onerror = function() {
+            //             //alert('May be not installed')
+            //             isInstalled = false;
+            //             alert(isInstalled)
+            //         }
+            //         document.body.appendChild(ifr);
+            //         setTimeout(function() {
+            //             document.body.removeChild(ifr)
+            //         }, 1000)
+            //     }
+            //     //ios判断
+            //     if (navigator.userAgent.match(/(iphone|ipod|ipas);?/i)) {
+            //         var isInstalled
+            //         //下面ios调用的地址
+            //         var contId = this.$route.query.id
+            //         console.log(contId)
+            //         var ifrSrc = "dzt://type=4&contentId=" + contId
+            //         var ifr = document.createElement('iframe')
+            //         ifr.src = ifrSrc
+            //         ifr.style.display = 'none';
+            //         ifr.onload = function() {
+            //             isInstalled = true;
+            //             alert(isInstalled)
+            //             document.getElementById('openApp1').click()
+            //         }
+            //         ifr.onerror = function() {
+            //             isInstalled = false;
+            //             alert(isInstalled)
+            //         }
+            //         document.body.appendChild(ifr)
+            //         setTimeout(function() {
+            //             document.body.removeChild(ifr)
+            //         }, 1000)
+            //     }
+            // },
             //   getBullet(){
             //       this.bullet=true;
             //   },
+            getbullet(){
+              this.bullet = true;
+              this.money=false;
+            },
             getReg() {
                 //    this.datacom();
                 console.log(this.bullet);
-                this.bullet = true;
                 //   根据key名获取传递回来的参数，data就是map
                 if (this.bullet === true) {
-                    this.valueBtn = '确定拼了'
                     // eventBus.$on('token', function(data) {
                     //     //赋值给拼团的数据
                     //     this.token = data;
@@ -450,24 +484,57 @@
                     //     console.log(this.token)
                     // }.bind(this))
                     //   debugger
-                    this.datas.totalMoney=this.totalMoney
-                    this.datas.number=this.number
+                    // this.datas.id=this.id
+
+                    // 参数一 datas(里面有number,id,totalMoey)
+                    this.datas[0].number=this.number
+                    this.datas[0].totalMoney=this.totalMoney
                     console.log(this.token);
-                    var params = new URLSearchParams()
-                    var productId = this.productId;
-                    // var userId = this.$route.query.userId;
-                    console.log(this.productId)
-                    var datas = this.datas
-                    console.log(datas)
-                    var token = this.token
-                    console.log(token);
-                    params.append('productId', productId)
-                    params.append('datas', datas)
-                    params.append('token', token)
+
+                    this.datas=JSON.stringify(this.datas)
+                    var params = {}      
+                    params.token=this.token;
+                    params.productId=this.productId;
+                    params.datas=this.datas;
                     console.log(params);
+                    // // 参数二productid
+                    // var productId = this.productId;
+                    // // var userId = this.$route.query.userId;
+                    // console.log(this.productId)
+                    // var datas = this.datas
+                    // console.log(datas)
+                    // // 参数三token
+                    // var token = this.token
+                    // console.log(token);
+                    // params.token=token;
+                    // params.datas=datas;
+                    // params.productId=productId;
+                    // // params.append('productId', productId)
+                    // // params.append('datas', datas)
+                    // // params.append('token', token)
+                    // console.log(params);
+
+                    // 跨域(可以传数值过去 )
+            //         axios({
+            //   url:'http://192.168.0.115:8081/hqcd/api/collage/addAssemble',
+            //   method:'post',
+            //   params:{
+            //     token:this.token,
+            //     productId:this.productId,
+            //     datas:this.datas
+            //   }
+            //    }).then(function(res){
+            //      console.log(res.data);
+            //    }).catch(function(error){
+            //      console.log(error);
+            //    })
                     //发起拼团
-                       this.$axios.post('addGroup',params).then(res=>{
+                       this.$axios.post('sendGroup', params
+              ).then(res=>{
                          console.log(res)
+                           })
+
+
                         //  debugger
                         // if(res.res==1){
                         //        this.$message({
@@ -492,7 +559,7 @@
                         //  this.$router.push({path:'/register',query:{userId:this.$route.query.userId}})
                         // },1500)
                     //    }
-                       })
+                     
                 }
             },
         },
@@ -506,6 +573,10 @@
     }
 </style>
 <style lang='less'>
+a{
+    text-decoration: none;
+    color:black;
+  }
 .group{
     height: 100%;
     background: rgba(246, 246, 246, 1);

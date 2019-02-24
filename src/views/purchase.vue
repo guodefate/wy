@@ -12,6 +12,20 @@
        <img  v-else-if="title.dType===2" :src=" 'http://192.168.0.115:8081/hqcd/download'+ title.content"     alt="">
     </div>
      </div>
+     <div class="related-purchase-box">
+         <div class="related-purchase-title">
+             相关求购
+         </div>
+         <div class="related-purchase-content" v-for="(items, index) in similarList" :key="index">
+             <router-link :to="{path:'/purchase',query:{id:items.id,userId:userId}}">
+                            <div class='purchase-titles'>{{items.title}}</div>
+                            <div class="purchase-content">{{items.content}}</div>
+                            <div class='purchase-time'>{{items.createTime}}</div>
+                            </router-link>
+                       </div>
+
+         </div>
+     </div>
      <div class="div"></div>
      <div class="footer" >
        <!-- <mt-button size="small" type="danger" @click="getAPP" id="openApp">打开app</mt-button> -->
@@ -29,9 +43,14 @@ export default {
       return{
           item:{ },
           contents:[],
-          title:{}
+          title:{},
+          similarList:[],
+          userId:''
  
       }
+  },
+  created(){
+       this.userId= this.$route.query.userId
   },
   methods:{
     
@@ -50,10 +69,11 @@ export default {
             // id:137,
             pageNum:1,
             pageSize:10000}).then(res => {
-               //console.log(res);
+               console.log(res);
                this.item =res.data.purchase;
                this.title=res.data.purchase.contents[0]
                this.contents=res.data.purchase.contents
+               this.similarList=res.data.similarList
                
              })
       },
@@ -119,7 +139,18 @@ export default {
       },
       mounted(){
           this.getData();
-}
+},
+ watch: {
+    $route(newVal, oldVal) {
+        console.log('数据变了');
+      // 重新获取数据即可
+      //   this.created();
+      // 初始化数据
+      // this.strQuery(str);
+      this.getData();
+        location.replace(location) 
+    }
+  }
 }
 </script>
 <style>
@@ -128,7 +159,11 @@ export default {
   padding: 0;
 }
 </style>
-<style scoped>
+<style lang='less'>
+a{
+    text-decoration: none;
+    color:black;
+  }
 .wrap{
      background:#fff;
      width:100%;
@@ -217,7 +252,36 @@ export default {
         .mint-button--small{
             font-size: 0.56rem;
         }
- 
+        //相关求购
+        .related-purchase-box{
+         .related-purchase-title{
+            background-color: rgba(22,190,172,1);
+            color:white;
+            text-align: center;
+            font-size: 0.42rem;
+            padding:0.13rem 0;
+         }
+         .related-purchase-content{
+             margin:0.5rem;
+             .purchase-titles{
+                 font-size: 0.36rem;
+                 font-weight: bold;
+                 padding-bottom: 0.1rem;
+                 border-bottom: 0.02rem solid #E5E5E5 ;
+             }
+             .purchase-content{
+                 font-size: 0.36rem;
+                 color:rgba(51,51,51,1);
+                 padding:0.1rem 0;
+             }
+             .purchase-time{
+                 font-size: 0.26rem;
+                 color:rgba(102,102,102,1);
+
+             }
+         }
+
+        }
  
 </style>
 

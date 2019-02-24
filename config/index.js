@@ -18,17 +18,10 @@ module.exports = {
                     '^/api': '/hqcd/api',
                 }
             },
-            //  '/sendSmsCode':{
-            //   target:'http://192.168.1.110:8081',
-            //   changeOrigin:true,
-            //   pathRewrite:{
-            //     '^/sendSmsCode':'',
-            //   } 
-            //  }
         },
 
         // Various Dev Server settings
-        host: '192.168.0.109', // can be overwritten by process.env.HOST
+        host: '192.168.0.110', // can be overwritten by process.env.HOST
         port: 8081, // can be overwritten by process.env.PORT, if port is in use, a free one will be determined
         autoOpenBrowser: false,
         errorOverlay: true,

@@ -12,6 +12,19 @@
        <img v-else-if="title.dType===2" :src=" 'http://192.168.0.115:8081/hqcd/download'+ title.content"  class='phone' alt="">
         </div>
     </div>
+     <div class="add-url" v-show="add"><a  target="_blank"  :href="'https://'+addressUrl">点击进入展会官网</a></div>
+    
+    <!-- 评论区 -->
+    <div class="talk-box" v-for="(item, index) in comments" :key="index">
+       <div class="talk-left"><img :src="'http://192.168.0.115:8081/hqcd/download'+ item.headUrl" alt="" class='talk-img'></div>
+        <div class="talk-right">
+            <div class="talk-username">
+                {{item.nickName}}
+            </div>
+            <div class="talk-time">{{item.time}} (评价时间)</div>
+            <div class="talk-content">{{item.content}}</div>
+        </div>
+    </div>
     <div class="div"></div>
      <div class="footer" >
        <!-- <mt-button size="small" type="danger" @click="getAPP" id="openApp">打开app</mt-button> -->
@@ -30,10 +43,16 @@ export default {
       return{
           item:{ },
           contents:[],
+          comments:[],
+          addressUrl:'',
+          add:false
          
       } 
   },
   methods:{
+      url(){
+          window.location=this.addressUrl
+      },
       
      strQuery(str){
       var url=window.location.search();
@@ -53,11 +72,19 @@ export default {
            pageNum:''
          
        }).then(res => {
-               //console.log(res);
+               console.log(res);
                //console.log(res.data)
                this.item =res.data;
                this.title=res.data.contents[0]
                this.contents=res.data.contents
+               this.comments=res.data.comments
+               this.addressUrl=res.data.addressUrl
+               console.log(this.addressUrl);
+               if(this.addressUrl){
+                   this.add=true
+               }else{
+                   this.add=false
+               }
                
              })
       },
@@ -133,7 +160,11 @@ export default {
   padding-bottom: 1rem;
 }
 </style>
-<style scoped>
+<style lang='less'>
+a{
+    text-decoration: none;
+    color:white;
+}
 .wrap{
      background:#fff;
      width:100%;
@@ -221,6 +252,47 @@ export default {
         }
         .mint-button--small{
             font-size: 0.56rem;
+        }
+        .add-url{
+            width: 100%;
+            background-color: rgba(22,190,172,1);
+            color:white;
+            text-align: center;
+            font-size: 0.30rem;
+            padding:0.13rem 0;
+            margin:0;
+        }
+        // 评论区
+        .talk-box{
+            display: flex;
+            margin-top:0.45rem;
+            .talk-left{
+              width: 1rem;
+              height: 1rem;
+              margin-left:0.2rem;
+              .talk-img{
+                  width: 1rem;
+                  height: 1rem;
+                  border-radius: 50%;
+              }
+            }
+            .talk-right{
+                flex:1;
+                margin-left:0.2rem;
+                .talk-username{
+                    font-size: 0.36rem;
+                    font-weight: bold;
+                }
+                .talk-time{
+                    font-size: 0.26rem;
+                    color:rgba(100,100,100,1);
+                    padding:0.18rem 0;
+                }
+                .talk-content{
+                    font-size: 0.36rem;
+                    color:rgba(51,51,51,1);
+                }
+            }
         }
  
 </style>

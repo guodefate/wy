@@ -53,7 +53,7 @@ export default {
        }).then(res => {
                //console.log(res);
                this.item =res.data; 
-               this.items=res.data.contents
+            //    this.items=res.data.contents
                this.contents=res.data.contents
              })
       },

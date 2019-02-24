@@ -10,21 +10,30 @@
                  <el-tabs v-model="activeName2" type="card" @tab-click="handleClick" :stretch=true>
                 <el-tab-pane label="全部产品" name="first" class='btn'>
                     <div class="wrap-content-box">
-                        <div class="wrap-content" v-for="item in appProductDtoList" :key="item._id">
+                        <div v-show="!product" class='tips'>暂时没有产品信息~</div>
+                        <div v-show="product" class="wrap-content" v-for="item in appProductDtoList" :key="item._id">
+                             <router-link :to ="{path:'/product',query:{id:item.id,userId:userId}}">
                             <div class="contain"><img class='product-icon' :src=" 'http://192.168.0.115:8081/hqcd/download'+ item.picture" alt=""></div>
                             <div class='wrap-protitle'>{{item.name}}</div>
                             <h4>{{item.productModel}}</h4>
                             <div class='promodel'>{{item.categoryName}}</div>
+                            </router-link>
                         </div>
                     </div>
                 </el-tab-pane>
                 <el-tab-pane label="求购" name="second" class='btn'>
-                    <div class="wrap-contents" v-for="titles in stt" :key="titles._id">
+                    <div class="tips" v-show="!buying
+                    ">暂时没有求购消息~</div>
+                    <div v-show="buying" class="wrap-contents" v-for="titles in stt" :key="titles._id" >
+                        <router-link :to ="{path:'/purchase',query:{id:titles.id,userId:userId}}" class='wrap-count'>
+                        <!-- <div class="jump" @click="jump"> -->
                         <div class="contains"><img class='contains-icon' :src=" 'http://192.168.0.115:8081/hqcd/download'+ titles.picture" alt=""></div>
                         <div class="shopp-box">
                             <div class='shopp'>{{titles.title}}</div>
                             <div class='shopp-time'>{{titles.createTime}}</div>
                         </div>
+                        <!-- </div> -->
+                        </router-link>
                     </div>
                 </el-tab-pane>
             </el-tabs>
@@ -48,7 +57,11 @@
                 appProductDtoList: [],
                 title: {},
                 stt: [],
-                companyDto:{}
+                companyDto:{},
+                userId:0,
+                product:false,
+                buying:false,
+                buy:''
             }
         },
         methods: {
@@ -74,6 +87,9 @@
                     //console.log(res.data)
                     this.item = res.data.appProductDtoList[0]
                     this.appProductDtoList = res.data.appProductDtoList
+                    if(this.appProductDtoList!=0){
+                       this.product=true;
+                    }
                     this.title = res.data.company
                     this.companyDto=res.data.companyDto
                 })
@@ -86,12 +102,33 @@
                     pageNum: 1,
                     pageSize: 10000
                 }).then(res => {
-                    //console.log(res);
+                    console.log(res);
                     //console.log(res.data)
-                    this.titles = res.data[0]
+                    // this.titles = res.data[0]
+                    this.id=res.data
                     this.stt = res.data
+                    // this.buy=res.data.title
+                    if(this.stt!=0){
+                        this.buying=true
+                    }
                 })
             },
+            jump(){
+                this.$router.push({
+                    path: '/purchase',
+                    query: {
+                        id:3,userId: this.$route.query.userId
+                    }
+                })
+            },
+            // jumpPage() {
+            //     this.$router.push({
+            //         path: '/product',
+            //         query: {
+            //             userId: this.$route.query.id
+            //         }
+            //     })
+            // },
             getReg() {
                 this.$router.push({
                     path: '/register',
@@ -158,6 +195,11 @@
         mounted() {
             this.getData();
             this.getType()
+        },
+        created(){
+            this.getData();
+            this.userId= this.$route.query.userId
+            console.log(this.$route.query);
         }
     }
 </script>
@@ -303,25 +345,15 @@
         color:white;
     }
     .wrap-content-box {
-        float: left;
-        // display: flex;
-        // flex-wrap: wrap;
-        // justify-content: space-around;
-        display: inline-block;
+        float:left;
         box-sizing: border-box;
         padding-left: 0.1rem;
         padding-right: 0.1rem;
-        // background-color: white;
-        box-sizing: border-box;
-        // overflow: hidden;
-        // margin-left:-0.5rem;
     }
     .wrap-content {
         width: 46.5% !important;
         display: inline-block;
-        // background: rgba(255, 255, 255, 1);
-        // background: #fff;
-        // border: 1px solid #fff;
+        box-sizing: border-box;
         background-color: rgba(238,238,238,1);
         margin:0.15rem;
     }
@@ -336,13 +368,15 @@
         width: 100%;
         background: #fff;
         margin-top: 0.15rem;
-        display: flex;
         height: 3rem;
         margin-bottom: 0.3rem;
         margin-top: 0.3rem;
         background: #fff;
         padding-right: 0.25rem;
         padding-left: 0.25rem;
+    }
+    .wrap-count{
+      display: flex;
     }
     .contains {
         width: 3rem;
@@ -407,6 +441,11 @@
         font-size: 0.34rem;
         border-radius: 0;
     }
+    .tips{
+        font-size: 0.42rem;
+        margin-top:0.35rem;
+        text-align: center;
+    }
   .footer {
         display: flex;
         z-index: 999;
@@ -441,4 +480,8 @@
         background-color: white;
         width: 100%;
     }
+    a{
+    text-decoration: none;
+    color:black;
+  }
 </style>
